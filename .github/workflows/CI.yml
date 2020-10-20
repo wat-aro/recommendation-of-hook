@@ -1,0 +1,26 @@
+name: CI
+
+on: [push]
+
+jobs:
+  generate:
+    name: Generate
+    runs-on: ubuntu-latest
+    container:
+      image: ruby:2.7.2
+      volumes:
+        - bundle_cache:/usr/local/bundle
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v1
+        with:
+          path: /usr/local/bundle
+          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-gems-
+      - name: bundle install
+        run: |
+          bundle install
+      - name: Run build
+        run: |
+          bundle exec reveal-ck generate
