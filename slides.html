@@ -1,16 +1,396 @@
 <section>
 
-<h1>React Hooks のすすめ</h1>
+<h1>
+<code>React Hooks</code> のすすめ</h1>
+
+</section>
+<section>
+<section>
+
+<h2><code>About me</code></h2>
+
+<ul>
+  <li>wat-aro</li>
+  <li>@wat_aro</li>
+  <li>Github: wat-aro</li>
+</ul>
 
 </section>
 <section>
 
-<h2>目次</h2>
+<h3>お仕事関係</h3>
 
 <ul>
-  <li>自己紹介</li>
-  <li>React Hooks の出自</li>
-  <li>React Hooks の嬉しさ</li>
+  <li>元陸上自衛官</li>
+  <li>Fjord卒業生</li>
+  <li>永和システムマネジメントに入社して5年目になりました</li>
 </ul>
 
+</section>
+<section>
+
+<h3>好きなもの</h3>
+
+<ul>
+  <li>関数型言語(Haskell, Elm, Scheme, Coq)</li>
+  <li>筋トレはじめました</li>
+  <li>最近仕事でReactを書いていて気に入ったReact Hooksを紹介します</li>
+</ul>
+
+</section>
+</section>
+
+<section>
+<section>
+
+<h2>
+<code>React Hooks</code> とは</h2>
+
+<ul>
+  <li>React 16.8 で追加された機能。</li>
+  <li>Functional Componentにstateや副作用をもたせることができる</li>
+</ul>
+
+</section>
+<section>
+
+<h3>
+<code>React Hooks</code> 以前</h3>
+
+<ul>
+  <li>Functional Component は Presentational Component として使う</li>
+  <li>stateや副作用が必要な場合はClassコンポーネントやHOCを使います</li>
+</ul>
+
+</section>
+<section>
+
+<h3>
+<code>React Hooks</code> 以前</h3>
+
+<pre><code class="language-jsx">class Users extends React.Component&lt;Props, State&gt; {
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      company: props.company,
+      users: [],
+    };
+  }
+
+  async componentDidMount() {
+    const usersResponse = await Axios.get&lt;User[]&gt;('/users');
+    this.setState({ ...this.state, users: usersResponse.data });
+  }
+
+  render() {
+    return (
+      &lt;div&gt;
+        &lt;h3&gt;{this.state.company.name}&lt;/h3&gt;
+        &lt;ul&gt;
+          {this.state.users.map((user) =&gt; (
+            &lt;li key={user.id}&gt;{user.name}&lt;/li&gt;
+          ))}
+        &lt;/ul&gt;
+      &lt;/div&gt;
+    );
+  }
+}
+</code></pre>
+
+</section>
+</section>
+
+<section>
+<section>
+
+<h2>
+<code>Ract Hooks</code> でどう変わるか</h2>
+
+<pre><code class="language-jsx">const Users: React.FC&lt;Props&gt; = (props) =&gt; {
+  const [users, setUsers] = useState&lt;User[]&gt;([]);
+
+  useEffect(() =&gt; {
+    (async () =&gt; {
+      const usersResponse = await Axios.get&lt;User[]&gt;('/users');
+      setUsers(usersResponse.data);
+    })();
+  }, []);
+
+  return (
+    &lt;div&gt;
+      &lt;h3&gt;{props.company.name}&lt;/h3&gt;
+      &lt;ul&gt;
+        {users.map((user) =&gt; (
+          &lt;li key={user.id}&gt;{user.name}&lt;/li&gt;
+        ))}
+      &lt;/ul&gt;
+    &lt;/div&gt;
+  );
+};
+</code></pre>
+
+</section>
+<section>
+
+<h3><code>useState</code></h3>
+
+<pre><code class="language-typescript">function useState&lt;S&gt;(initialState: S | (() =&gt; S)): [S, Dispatch&lt;SetStateAction&lt;S&gt;&gt;];
+function useState&lt;S = undefined&gt;(): [S | undefined, Dispatch&lt;SetStateAction&lt;S | undefined&gt;&gt;];
+</code></pre>
+
+<ul>
+  <li>useStateに値を渡すと、それを初期値とするデータとデータを更新する関数のタプルを返す。</li>
+  <li>データを更新する関数を使うとデータが更新され、再レンダーされる</li>
+</ul>
+
+<pre><code class="language-typescript">const [state, setState] = useState&lt;T&gt;(initialValue);
+</code></pre>
+
+</section>
+<section>
+
+<h3><code>useEffect</code></h3>
+
+<ul>
+  <li>レンダー後に実行される(≒ componentDidMount)</li>
+  <li>第二引数に依存する変数の配列を書く</li>
+  <li>第二引数を設定しない場合はレンダーされるたびに実行される(≒ componentDidUpdate)</li>
+  <li>第二引数に依存する変数を指定すると、その変数が変更された場合のみ実行される</li>
+  <li>同じコンポーネント内で複数回使える</li>
+  <li>useEffectから関数を返すとクリーンアップ用関数として実行される(≒ componentWillUnmount)</li>
+</ul>
+
+</section>
+<section>
+
+<h3><code>useEffect</code></h3>
+
+<ul>
+  <li>以前はライフサイクルメソッドしかなかったため複数の関心事が同じメソッド内で実行されていた。</li>
+  <li>useEffectは複数回使えるため関心事を分離できる</li>
+</ul>
+
+</section>
+<section>
+
+<h3><code>useEffect</code></h3>
+
+<p>別々の関心事をそれぞれのuseEffectで実行している</p>
+
+<pre><code class="language-typescript">  useEffect(() =&gt; {
+    (async () =&gt; {
+      const usersResponse = await Axios.get&lt;User[]&gt;('/users');
+      setUsers(usersResponse.data);
+    })();
+  }, []);
+
+  useEffect(() =&gt; {
+    const subscription = props.source.subscribe();
+    return () =&gt; {
+      subscription.unsubscribe();
+    };
+  });
+</code></pre>
+
+</section>
+<section>
+
+<h3>関心事をカスタムフックに抽出する</h3>
+
+<p>users の取得部分をカスタムフックに切り出してみる</p>
+
+<pre><code class="language-typescript">export const useUsers = () =&gt; {
+  const [users, setUsers] = useState&lt;User[]&gt;([]);
+
+  useEffect(() =&gt; {
+    (async () =&gt; {
+      const usersResponse = await Axios.get&lt;User[]&gt;('/users');
+      setUsers(usersResponse.data);
+    })();
+  }, []);
+
+  return { users };
+};
+</code></pre>
+
+</section>
+<section>
+
+<h3>カスタムフックを使う</h3>
+
+<p>props で受け取るのと同様に扱える</p>
+
+<pre><code class="language-jsx">const Users: React.FC&lt;P&gt; = (props) =&gt; {
+  const { users } = useUsers();
+
+  return (
+    &lt;div&gt;
+      &lt;h3&gt;{props.company.name}&lt;/h3&gt;
+      &lt;ul&gt;
+        {users.map((user) =&gt; (
+          &lt;li key={user.id}&gt;{user.name}&lt;/li&gt;
+        ))}
+      &lt;/ul&gt;
+    &lt;/div&gt;
+  );
+};
+</code></pre>
+
+</section>
+<section>
+
+<h3>カスタムフックを拡張する</h3>
+
+<ul>
+  <li>ロード中の状態もほしい</li>
+  <li>エラーがある場合はそれもほしい</li>
+</ul>
+
+</section>
+<section>
+
+<h3>カスタムフックを拡張する</h3>
+
+<ul>
+  <li>状態と初期値を定義する</li>
+</ul>
+
+<pre><code class="language-typescript">type State = {
+  users: User[];
+  isLoading: boolean;
+  error?: Error;
+};
+
+const initialState = {
+  users: [],
+  isLoading: false,
+};
+</code></pre>
+
+</section>
+<section>
+
+<h3>カスタムフックを拡張する</h3>
+
+<p>よしなにデータを更新してあげる</p>
+
+<pre><code class="language-typescript">export const useUsers = () =&gt; {
+  const [data, setState] = useState&lt;State&gt;(initialState);
+
+  useEffect(() =&gt; {
+    (async () =&gt; {
+      setState({ ...data, isLoading: true });
+      try {
+        const usersResponse = await Axios.get&lt;User[]&gt;('/users');
+        setState({ ...data, isLoading: false, users: usersResponse.data });
+      } catch (error) {
+        setState({ ...data, isLoading: false, error: error });
+      }
+    })();
+  }, []);
+
+  return { ...data };
+};
+</code></pre>
+
+</section>
+<section>
+
+<h3>カスタムフックを拡張する</h3>
+
+<p>コンポーネントに組み込むと、ロジックはカスタムフックにあって、コンポーネントは状態に合わせて表示するだけになる</p>
+
+<pre><code class="language-jsx">const Users: React.FC&lt;P&gt; = (props) =&gt; {
+  const { users, isLoading, error } = useUsers();
+
+  return (
+    &lt;div&gt;
+      &lt;h3&gt;{props.company.name}&lt;/h3&gt;
+      {isLoading ? (
+        'Loading ...'
+      ) : error !== undefined ? (
+        &lt;Error error={error} /&gt;
+      ) : (
+        &lt;ul&gt;
+          {users.map((user) =&gt; (
+            &lt;li key={user.id}&gt;{user.name}&lt;/li&gt;
+          ))}
+        &lt;/ul&gt;
+      )}
+    &lt;/div&gt;
+  );
+};
+
+</code></pre>
+
+</section>
+<section>
+
+<h3>他の Hook</h3>
+
+<p>よく使うもののみ</p>
+
+<ul>
+  <li>useContext
+    <ul>
+      <li>グローバルな状態を扱える</li>
+    </ul>
+  </li>
+  <li>useReducer
+    <ul>
+      <li>Redux みたいなやつ</li>
+    </ul>
+  </li>
+  <li>useMemo
+    <ul>
+      <li>コンポーネント内で定義する変数をメモ化できる</li>
+    </ul>
+  </li>
+  <li>useCallback
+    <ul>
+      <li>関数をmemo化するためのhook</li>
+    </ul>
+  </li>
+</ul>
+
+</section>
+</section>
+
+<section>
+<section>
+
+<h2>実際使っての感想</h2>
+
+</section>
+<section>
+
+<h3>pros</h3>
+
+<ul>
+  <li>useStateやuseReducerから返される値が変化するだけなのでより宣言的に書けてよい</li>
+  <li>class を使わないので this も使うことがなくなってよい</li>
+  <li>useContext と useReducerで実質Reduxみたいなこともできる</li>
+  <li>ロジックはhooksに寄せて単体テスト、見た目はRegression Testの体験がよい</li>
+  <li>TypeScriptとの相性がよい</li>
+</ul>
+
+</section>
+<section>
+
+<h3>cons</h3>
+
+<ul>
+  <li>useEffect で気をつけないと無限ループ</li>
+  <li>配列でない値が <code>T | undefined</code> になりがち(hooks に限ったことではない)</li>
+</ul>
+
+</section>
+<section>
+
+<h3>おわりに</h3>
+
+<p>Algebraic Effectとの関係などを調べて発表したかったのですが、力及ばず。<br>
+Promise を throw するで話題になった Concurrent mode も気になってます。</p>
+
+</section>
 </section>
