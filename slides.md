@@ -326,6 +326,12 @@ const Users: React.FC<P> = (props) => {
 
 ---
 
+### 最近のなやみごと
+
+Hooks によって Container Component がいらなくなると思っていたけれど、useStateやuseEffectは結局副作用なのでPresentational ComponentとContainer Componentに分けたほうがいいのではという気持ちになってきた
+
+---
+
 ### おわりに
 
 Algebraic Effectとの関係などを調べて発表したかったのですが、力及ばず。
